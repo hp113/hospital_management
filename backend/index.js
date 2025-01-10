@@ -21,6 +21,7 @@ app.use("/api/delivery", verifyToken, checkRole('DELIVERY'), deliveryRouter);
 app.get("/", (req, res)=>{
     res.json({message:"hello"});
 })
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)

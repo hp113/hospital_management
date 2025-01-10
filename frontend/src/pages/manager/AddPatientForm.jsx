@@ -31,7 +31,7 @@ function AddPatientForm() {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/manager/patients', {
+      const response = await fetch('https://hospitalmanagement-production-ad8a.up.railway.app/api/manager/patients', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',  
+  baseURL: 'https://hospitalmanagement-production-ad8a.up.railway.app/',  
 });
 
 export const login = async (email, password) => {
