@@ -1,0 +1,118 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int    @id @default(autoincrement())
+  email       String @unique
+  password    String
+  role        Role
+  pantrystaff Pantry[]
+  deliveryPersonnels DeliveryPersonnel[]
+}
+
+enum Role {
+  MANAGER
+  PANTRY
+  DELIVERY
+}
+
+model Patient {
+  id             Int      @id @default(autoincrement())
+  name           String
+  diseases       String
+  allergies      String
+  roomNumber     String
+  bedNumber      String
+  floorNumber    String
+  age            Int
+  gender         String
+  contactInfo    String
+  emergencyContact String
+  additionalInfo String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  dietPlans      FoodPlan[]
+  mealStatus     MealPreparationStatus[]
+}
+
+model FoodPlan {
+  id              Int      @id @default(autoincrement())
+  patientId       Int
+  morningMeal     String
+  eveningMeal     String
+  nightMeal       String
+  morningIngredients String
+  eveningIngredients String
+  nightIngredients String
+  instructions    String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  patient         Patient  @relation(fields: [patientId], references: [id])
+  mealStatus      MealPreparationStatus[]
+}
+
+model Pantry {
+  id            Int                     @id @default(autoincrement())
+  staffName     String
+  contactInfo   String
+  location      String
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+  tasks         MealPreparationStatus[]
+  userId        Int                     @unique
+  user          User                    @relation(fields: [userId], references: [id])
+}
+
+model DeliveryPersonnel {
+  id            Int      @id @default(autoincrement())
+  name          String
+  contactInfo   String
+  otherDetails  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  mealDeliveries MealPreparationStatus[]
+  userId        Int     @unique
+  user          User    @relation(fields: [userId], references: [id])
+}
+
+model MealPreparationStatus {
+  id                   Int               @id @default(autoincrement())
+  foodPlanId           Int               
+  patientId            Int               
+  status               MealStatus        
+  deliveryStatus       DeliveryStatus    
+  pantryId             Int               
+  deliveryPersonnelId  Int?              
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  foodPlan             FoodPlan          @relation(fields: [foodPlanId], references: [id])
+  pantry               Pantry            @relation(fields: [pantryId], references: [id])
+  deliveryPersonnel    DeliveryPersonnel? @relation(fields: [deliveryPersonnelId], references: [id])
+  patient              Patient           @relation(fields: [patientId], references: [id])
+
+  // Composite unique constraint to ensure no duplicate assignment of the same food plan to a patient with the same status
+  @@unique([foodPlanId, patientId, status])
+}
+
+enum MealStatus {
+  PREPARED
+  IN_PROGRESS
+  PENDING
+}
+
+enum DeliveryStatus {
+  DELIVERED
+  PENDING
+}
